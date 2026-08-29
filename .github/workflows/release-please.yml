@@ -1,0 +1,73 @@
+# Nobody picks a version. release-please reads the Conventional Commits that
+# land on main and keeps a release pull request open carrying the next
+# version and the changelog entry; merging that pull request tags the
+# release and writes the notes. The artefacts job then builds the RPM at
+# that tag and attaches it, so a release actually carries a downloadable
+# package rather than just source.
+#
+# One workflow rather than two, because a tag pushed with GITHUB_TOKEN starts
+# no further workflow run — GitHub refuses, to stop recursive runs. A
+# separate on-tag workflow would silently never fire, and the first symptom
+# is a release with no RPM on it.
+name: release-please
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# Never two releases at once, and never cancel one halfway: a killed run can
+# leave a tag pushed and nothing published against it.
+concurrency:
+  group: release-please
+  cancel-in-progress: false
+
+jobs:
+  # Works out what, if anything, is being released. Most runs only refresh
+  # the release pull request; the run that matters is the one where that
+  # pull request was what just landed.
+  release-please:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write # tags the release and writes it
+      pull-requests: write # keeps the release pull request up to date
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - id: release
+        uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  # This template's own placeholder RPM, built at the tag just released and
+  # attached to it — proof the packaging actually works, not just that the
+  # spec parses. A real project stamped from this template will have
+  # renamed example.spec by the time it ships its own releases; the RPM
+  # attached here is whatever spec exists at that tag.
+  artefacts:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write # uploads the RPM onto the release
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.release-please.outputs.tag_name }}
+      - name: rpm-build-lint
+        run: >-
+          docker run --rm
+          -v "$(pwd):/$(basename "$(pwd)")" -w "/$(basename "$(pwd)")"
+          -e HOME="/$(basename "$(pwd)")/.rpm-home"
+          fedora:41@sha256:f1a3fab47bcb3c3ddf3135d5ee7ba8b7b25f2e809a47440936212a3a50957f3d
+          sh scripts/rpm-build-lint.sh
+      - name: Upload RPM to the release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload "${{ needs.release-please.outputs.tag_name }}" \
+            .rpm-home/rpmbuild/RPMS/*/*.rpm .rpm-home/rpmbuild/SRPMS/*.src.rpm

@@ -1,0 +1,5 @@
+#!/bin/sh
+# The thing this template packages. Replace it with your real project's
+# source tree — this file only exists so example.spec has something real
+# to build, install, and run %check against.
+echo "Hello from example-tool"

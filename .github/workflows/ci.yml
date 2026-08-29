@@ -1,0 +1,73 @@
+# The gate. Every command in here has a twin in lefthook.yml, so a green
+# pre-commit/pre-push means a green pipeline and neither can drift into
+# being the only place a rule is enforced.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Least privilege by default. A job that needs more says so itself.
+permissions:
+  contents: read
+
+# A second push to the same branch makes the first run pointless.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # rpmbuild -ba plus rpmlint on both the spec and the built RPM, inside the
+  # same pinned image the pre-push hook runs via `docker run` - the exact
+  # same invocation, not a `container:` job, because a bare Fedora image has
+  # no git for actions/checkout to find before this job's own steps get a
+  # chance to install one.
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: rpm-build-lint
+        run: >-
+          docker run --rm
+          -v "$(pwd):/$(basename "$(pwd)")" -w "/$(basename "$(pwd)")"
+          -e HOME="/$(basename "$(pwd)")/.rpm-home"
+          fedora:41@sha256:f1a3fab47bcb3c3ddf3135d5ee7ba8b7b25f2e809a47440936212a3a50957f3d
+          sh scripts/rpm-build-lint.sh
+
+  # Layout and structure of the Markdown and YAML this repo owns.
+  docs:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version-file: package.json
+      - name: bun install
+        # Frozen, so a drifted lockfile fails the job rather than silently
+        # resolving to something nobody committed.
+        run: bun install --frozen-lockfile
+      - name: prettier --check
+        run: bun run format:check
+      - name: markdownlint
+        run: bun run lint:md
+
+  # A hook is something you can skip, and the version number depends on
+  # these messages being right, so the whole branch is checked here too.
+  commits:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version-file: package.json
+      - run: bun install --frozen-lockfile
+      - name: commitlint
+        run: |
+          bunx commitlint \
+            --from "${{ github.event.pull_request.base.sha }}" \
+            --to "${{ github.event.pull_request.head.sha }}" \
+            --verbose
