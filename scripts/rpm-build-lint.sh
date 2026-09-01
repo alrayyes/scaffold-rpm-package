@@ -47,3 +47,39 @@ rpmbuild -ba "$HOME/rpmbuild/SPECS/$(basename "$spec")"
 
 rpmlint "$HOME/rpmbuild/SPECS/$(basename "$spec")"
 find "$HOME/rpmbuild/RPMS" -name '*.rpm' -exec rpmlint {} +
+
+# Building and linting only prove the spec is well-formed and rpmbuild
+# didn't choke - neither one ever installs the result, so a wrong %files
+# entry, or a binary that's non-executable once installed, still passes
+# both. Install the just-built package for real and prove it leaves
+# working files behind, the same way a person's own `dnf install` would.
+find "$HOME/rpmbuild/RPMS" -name '*.rpm' -exec dnf install -y {} +
+
+# rpm's own installed-file list, not the spec's %files section re-parsed
+# by hand - this is what actually landed on disk if dnf/rpm's own report
+# of success can't be trusted. See rules/packaging.md's "Testing an
+# installed package in CI": a slim/minimal base image can silently drop
+# files during install while the package manager still calls it a
+# success, and `rpm -ql`/dpkg -L would still list them as installed. A
+# missing entry here fails the build instead of shipping a package that
+# lies about its own contents.
+for installed_file in $(rpm -ql "$name"); do
+  [ -e "$installed_file" ] || {
+    echo "rpm-build-lint: $installed_file is in $name's installed file list but missing on disk" >&2
+    exit 1
+  }
+done
+
+# Prove the installed binary actually runs, not just that a file with its
+# name exists on disk - a non-executable or corrupt install still passes
+# the existence check above. Update the binary name and expected output
+# here when adapting this template to a real project's own entry point.
+actual_output=$(example-tool) || {
+  echo "rpm-build-lint: installed example-tool did not run successfully" >&2
+  exit 1
+}
+expected_output="Hello from example-tool"
+if [ "$actual_output" != "$expected_output" ]; then
+  echo "rpm-build-lint: installed example-tool printed '$actual_output', expected '$expected_output'" >&2
+  exit 1
+fi

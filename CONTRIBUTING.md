@@ -58,6 +58,14 @@ doesn't exist until this template has been used to cut an actual release —
 then runs `rpmbuild -ba` and `rpmlint` against it inside the pinned image.
 One script, so the hook and CI can't check different things.
 
+Build and lint clean isn't proof the package actually works — `dnf
+install`s the just-built `.rpm` too, checks that every file `rpm -ql`
+reports for it actually landed on disk (not just that rpm's own metadata
+says so), and runs the installed `example-tool` to confirm it's really
+executable and prints what it should. A spec that builds clean but ships a
+non-executable binary, or a `%files` entry that's wrong in a way rpmbuild
+doesn't catch on its own, fails here instead of shipping.
+
 ## Commit messages
 
 [Conventional Commits](https://www.conventionalcommits.org/):

@@ -64,6 +64,12 @@ working tree as `rpmbuild -ba` expects, builds the RPM and SRPM, and runs
 `rpmlint` against the spec and every built package. Built packages land
 under `.rpm-home/rpmbuild/` (gitignored).
 
+It then `dnf install`s the built RPM for real, checks that every file it
+lists as installed is actually present on disk, and runs the installed
+`example-tool` to confirm it executes and prints what it should — build
+and lint clean only prove the spec is well-formed, not that installing it
+leaves a working package behind.
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the toolchain, the hooks, and
