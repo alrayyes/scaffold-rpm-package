@@ -17,6 +17,15 @@ permissions:
   pull-requests: read
   statuses: write
 
+# github.ref on pull_request_target is the base branch, the same for every
+# open pull request — grouping on it the way ci.yml does would cancel one
+# pull request's check because another pull request pushed. Group on the
+# pull request number instead, so only a superseded run of the same pull
+# request gets cancelled.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   check:
     runs-on: ubuntu-24.04
