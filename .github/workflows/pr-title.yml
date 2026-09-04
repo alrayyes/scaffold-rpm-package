@@ -17,6 +17,15 @@ permissions:
   pull-requests: read
   statuses: write
 
+# A new push to the same pull request makes the previous check pointless.
+# github.ref, not the pattern release-auto-merge.yml/dependabot-auto-merge.yml
+# use: on pull_request_target it resolves to the base branch, the same for
+# every pull request, so grouping on it would cancel one pull request's
+# check with an unrelated pull request's.
+concurrency:
+  group: pr-title-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   check:
     runs-on: ubuntu-24.04
