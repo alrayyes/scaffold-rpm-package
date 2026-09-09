@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/alrayyes/scaffold-rpm-package/compare/v0.3.0...v0.3.1) (2026-09-09)
+
+
+### Bug Fixes
+
+* **deps:** downgrade bun.lock to lockfileVersion 1 for Dependabot ([#17](https://github.com/alrayyes/scaffold-rpm-package/issues/17)) ([a707143](https://github.com/alrayyes/scaffold-rpm-package/commit/a7071434beb4a16fa0bb1b7aec39746e1bec494d))
+
 ## [0.3.0](https://github.com/alrayyes/scaffold-rpm-package/compare/v0.2.0...v0.3.0) (2026-09-01)
 
 
