@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.2](https://github.com/alrayyes/scaffold-rpm-package/compare/v0.3.1...v0.3.2) (2026-10-09)
+
+
+### Bug Fixes
+
+* **hooks:** lint only staged files with markdownlint ([#26](https://github.com/alrayyes/scaffold-rpm-package/issues/26)) ([e3c576d](https://github.com/alrayyes/scaffold-rpm-package/commit/e3c576d5252c20a533f3833478b447f47d37bce2))
+
 ## [0.3.1](https://github.com/alrayyes/scaffold-rpm-package/compare/v0.3.0...v0.3.1) (2026-09-09)
 
 
