@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.3](https://github.com/alrayyes/scaffold-rpm-package/compare/v0.3.2...v0.3.3) (2026-10-15)
+
+
+### Bug Fixes
+
+* **ci:** run release-auto-merge when the autorelease label is added ([#30](https://github.com/alrayyes/scaffold-rpm-package/issues/30)) ([5375ebf](https://github.com/alrayyes/scaffold-rpm-package/commit/5375ebf1de778a71df5b1335d00485592c383850)), closes [#29](https://github.com/alrayyes/scaffold-rpm-package/issues/29)
+
 ## [0.3.2](https://github.com/alrayyes/scaffold-rpm-package/compare/v0.3.1...v0.3.2) (2026-10-09)
 
 
