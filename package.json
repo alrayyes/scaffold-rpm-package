@@ -13,7 +13,7 @@
   "trustedDependencies": ["lefthook"],
   "scripts": {
     "prepare": "lefthook install",
-    "format:check": "prettier --check \"**/*.{md,yml,yaml}\"",
+    "format:check": "prettier --check \"**/*.{md,yml,yaml}\" \"!.rpm-home/**\"",
     "lint:md": "markdownlint-cli2"
   }
 }
