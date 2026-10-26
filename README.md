@@ -25,6 +25,8 @@ this paragraph.
 - **[bun](https://bun.sh)**, for the tooling that isn't RPM packaging —
   commitlint, Prettier, markdownlint, and the
   [lefthook](https://lefthook.dev) that runs the git hooks.
+- **[gitleaks](https://github.com/gitleaks/gitleaks)**, for the secret scan
+  the git hooks run.
 
 ## Adapting this template
 
