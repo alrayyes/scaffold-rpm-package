@@ -16,6 +16,9 @@ This file is for whoever changes this template. The
   Prettier, markdownlint, and the [lefthook](https://lefthook.dev) that
   runs the git hooks. There's a `package.json`, but nothing here is
   JavaScript; it exists only so those tools resolve and stay pinned.
+- **[gitleaks](https://github.com/gitleaks/gitleaks)**, on your `PATH`, for
+  the secret scan the pre-commit and pre-push hooks run. CI runs the same
+  scan from a pinned image, so there's nothing to match in the version.
 
 One command installs the linters and the git hooks:
 

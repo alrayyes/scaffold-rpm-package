@@ -10,11 +10,16 @@
 # a floating range drifts silently and there's nothing to raise a pull
 # request about.
 #
-# One pin Dependabot can't see, updated by hand: the Fedora base image
-# digest in lefthook.yml/ci.yml/release-please.yml/CONTRIBUTING.md. It's
-# digest-pinned like everything else but doesn't live in an ecosystem
-# Dependabot's docker support watches, since it's named inside a shell
-# command rather than a Dockerfile FROM line.
+# Two pins Dependabot can't see, updated by hand. Both are digest-pinned like
+# everything else, but neither lives in an ecosystem Dependabot's docker
+# support watches:
+#
+# - the Fedora base image digest in lefthook.yml/ci.yml/release-please.yml/
+#   CONTRIBUTING.md, named inside a shell command rather than a Dockerfile
+#   FROM line.
+# - the gitleaks image in .github/workflows/gitleaks.yml, a job container
+#   rather than a Dockerfile FROM line. Automated digest tracking is
+#   alrayyes/dotfiles#938.
 version: 2
 
 updates:
