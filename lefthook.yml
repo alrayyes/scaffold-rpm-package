@@ -61,10 +61,9 @@ pre-push:
     # container - `docker run` is the stand-in for that here, since lefthook
     # runs on the bare host rather than inside the image already.
     #
-    # Mounted under its own basename, not a fixed path: rpm-build-lint.sh
-    # derives the source directory GitHub's tag archive would have used from
-    # that name, and a renamed clone (after this template is renamed) has
-    # to keep matching it. HOME points at .rpm-home/ rather than the repo
+    # Mounted under its own basename, not a fixed path. The script reads the
+    # source directory name from the spec, so the clone's name is irrelevant.
+    # HOME points at .rpm-home/ rather than the repo
     # root itself: rpmbuild and dnf (running as root in the container) drop
     # more than just rpmbuild/ under $HOME - .config, .rpmmacros - and none
     # of that belongs loose in the actual working tree.

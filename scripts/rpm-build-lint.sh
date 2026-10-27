@@ -15,30 +15,34 @@ set -eu
 spec=$(ls ./*.spec | head -1)
 name=$(sed -n 's/^Name:[[:space:]]*//p' "$spec" | head -1)
 version=$(sed -n 's/^Version:[[:space:]]*//p' "$spec" | head -1)
-repo=$(basename "$(pwd)")
+# The directory %prep's %autosetup unpacks into, read from the spec itself so
+# the checkout's own directory name never matters. Without -n rpmbuild expects
+# "<name>-<version>".
+srcdir=$(sed -n 's/^%autosetup.*[[:space:]]-n[[:space:]]*\([^[:space:]]*\).*/\1/p' "$spec" | head -1)
+srcdir=${srcdir:-${name}-${version}}
+srcdir=$(printf '%s' "$srcdir" | sed "s/%{version}/${version}/g; s/%{name}/${name}/g")
 
 command -v rpmbuild >/dev/null 2>&1 || dnf install -y -q rpmdevtools rpmlint make
 
 mkdir -p "$HOME"
 rpmdev-setuptree
 
-# A staging directory named "<repo>-<version>" mirrors the directory name
-# GitHub's tag-archive endpoint would produce, matching what %prep's
-# %autosetup -n expects — see example.spec's %prep comment for why that
-# name is the repo's, not the package's.
+# A staging directory named as %autosetup -n expects mirrors the directory
+# GitHub's tag-archive endpoint would produce — see example.spec's %prep
+# comment for why that name is the repo's, not the package's.
 #
 # .rpm-home is excluded too: it's where $HOME points when the caller wants
 # this script's own output (and dnf/rpm's incidental .config, .rpmmacros)
 # kept out of the actual working tree - packaging it into the source
 # tarball would be circular.
 staging=$(mktemp -d)
-mkdir -p "$staging/${repo}-${version}"
+mkdir -p "$staging/${srcdir}"
 find . -mindepth 1 -maxdepth 1 \
   ! -name .git ! -name node_modules ! -name .rpm-home \
   ! -name '*.rpm' ! -name '*.src.rpm' \
-  -exec cp -r {} "$staging/${repo}-${version}/" \;
+  -exec cp -r {} "$staging/${srcdir}/" \;
 tar czf "$HOME/rpmbuild/SOURCES/${name}-${version}.tar.gz" \
-  -C "$staging" "${repo}-${version}"
+  -C "$staging" "${srcdir}"
 rm -rf "$staging"
 
 cp "$spec" "$HOME/rpmbuild/SPECS/"
