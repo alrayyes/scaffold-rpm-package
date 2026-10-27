@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.4](https://github.com/alrayyes/scaffold-rpm-package/compare/v0.3.3...v0.3.4) (2026-10-27)
+
+
+### Bug Fixes
+
+* **scripts:** take rpm-build-lint source dir from the spec ([#42](https://github.com/alrayyes/scaffold-rpm-package/issues/42)) ([37f14ca](https://github.com/alrayyes/scaffold-rpm-package/commit/37f14cab01f21681c1470b5bdffe132a721d02eb))
+
 ## [0.3.3](https://github.com/alrayyes/scaffold-rpm-package/compare/v0.3.2...v0.3.3) (2026-10-15)
 
 
