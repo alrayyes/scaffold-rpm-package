@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.5](https://github.com/alrayyes/scaffold-rpm-package/compare/v0.3.4...v0.3.5) (2026-10-28)
+
+
+### Bug Fixes
+
+* **ci:** stop release-auto-merge cancelling its own labeled run ([#44](https://github.com/alrayyes/scaffold-rpm-package/issues/44)) ([de440fe](https://github.com/alrayyes/scaffold-rpm-package/commit/de440fe6e3841ecc9f656a3965a26f6783c9314c)), closes [#41](https://github.com/alrayyes/scaffold-rpm-package/issues/41)
+
 ## [0.3.4](https://github.com/alrayyes/scaffold-rpm-package/compare/v0.3.3...v0.3.4) (2026-10-27)
 
 
